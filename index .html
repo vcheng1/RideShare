@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <title>Website</title>
+    </head>
+    <body>
+        <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase-database.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase-auth.js"></script>
+        <script>
+            $(document).ready(function(){
+                var clicks = new Array()
+                clicks[0] = 1
+
+                $('input[name$="category"]').change(function(){
+                    clicks.push($(this).val())
+                    $('#categorychecked').val(clicks[clicks.length-1])
+                })
+
+                $('.submit').click(function(){
+                    var Name = document.getElementById('Name').value
+                    var Email = document.getElementById('Email').value
+                    var phoneNumber = document.getElementById('PhoneNumber').value
+                    var street1
+                    if(document.getElementById('LStreet').value == ''){
+                        street1 = ''
+                    }
+                    else{
+                        street1 =document.getElementById('LStreet').value
+                    }
+                    var city1
+                    if(document.getElementById('LCityState').value == ''){
+                        city1 = ''
+                    }
+                    else{
+                        city1 = document.getElementById('LCityState').value
+                    }
+                    var postal1
+                    if(document.getElementById('LPostal').value == ''){
+                        postal1 = ''
+                    }
+                    else{
+                        postal1 = document.getElementById('LPostal').value
+                    }
+                    var street2
+                    var city2
+                    var postal2
+                    if(document.getElementById('DStreet').value == ''){
+                        street2 = ''
+                    }
+                    else{
+                        street2 = document.getElementById('DStreet').value
+                    }
+                    var city2
+                    if(document.getElementById('DCityState').value == ''){
+                        city2 = ''
+                    }
+                    else{
+                        city2 = document.getElementById('DCityState').value
+                    }
+                    var postal2
+                    if(document.getElementById('DPostal').value == ''){
+                        postal2 = ''
+                    }
+                    else{
+                        postal2 = document.getElementById('DPostal').value
+                    }
+                    var dateLeave = document.getElementById('Leave').value
+                    var category = document.getElementById('categorychecked').value
+                    if(dateLeave == '' || Name == ''){
+                        $('#Error').attr('style', 'visibility: visible')
+                    }
+                    else if(phoneNumber == '' && Email == ''){
+                        $('#Error').attr('style', 'visibility: visible')
+                    }
+                    else if(street1 == '' && city1 == '' && postal1 == ''){
+                        $('#Error').attr('style', 'visibility: visible')
+                    }
+                    else if(street2 == '' && city2 == '' && postal2 == ''){
+                        $('#Error').attr('style', 'visibility: visible')
+                    }
+                    else if(category == ''){
+                        $('#Error').attr('style', 'visibility: visible')
+                    }
+                    else{
+                        writeData(Name, Name, Email, phoneNumber, dateLeave, street1, city1, postal1, street2, city2, postal2, category)
+                        $('#Thankyou').attr('style', 'visibility: visible')
+                        document.getElementById('Error').innerHTML = 'Thank you for submitting! Press results to see your drivers.'
+                        $('#Error').css({"background-color": "white"})
+                    }
+
+
+                    async function findDriver(address1, address2, address3, address4, name, date, contact){
+                        var promise1 = fetch('http://www.mapquestapi.com/directions/v2/route?key=6nc12wtYWv5rJ2e9VrloGULLTsARt1kA&from=' + address1 + '&to=' + address2).then(res => res.json()).then(data => data).catch(e => console.error(e))
+                        var promise2 = fetch('http://www.mapquestapi.com/directions/v2/route?key=6nc12wtYWv5rJ2e9VrloGULLTsARt1kA&from=' + address3 + '&to=' + address4).then(res => res.json()).then(data => data).catch(e => console.error(e))
+
+                        /*Promise.all([promise1, promise2]).then(([distance1, distance2]) => {
+                            console.log(distance1.route.distance)
+                            console.log(distance2.route.distance)
+                        })
+*/
+                        var [distance1, distance2] = await Promise.all([promise1, promise2])
+                        if (distance1.route.distance < 100 && distance2.route.distance < 100){
+                            document.getElementById('modal-title').innerHTML = 'Results'
+                            document.getElementById('modal-body').innerHTML += '<p p class="modal-title" style="text-align:left;">' + name + '</p><p p class="modal-title" style="text-align:left;">' + contact + '</p><p p class="modal-title" style="text-align:left;">' + address2 + '</p><p p class="modal-title" style="text-align:left;">' + address4 + '</p><hr>'
+                        }
+                    }
+                    if(category == 'Passenger'){
+                        var passengerLocation = ''
+                        var passengerDestination = ''
+                        if(street1 != ''){
+                            passengerLocation += street1.replace(/\s+/g, '') + ','
+                            if(city1 != ''){
+                                passengerLocation += city1.replace(/\s+/g, '')
+                            }
+                            else{
+                                if(postal1 != ''){
+                                    passengerLocation += postal1.replace(/\s+/g, '')
+                                }
+                            }
+                            if(postal1 != ''){
+                                passengerLocation += postal1.replace(/\s+/g, '')
+                            }
+                        }
+                        else{
+                            if(city1 != ''){
+                                passengerLocation += city1.replace(/\s+/g, '')
+                            }
+                            else{
+                                if(postal1 != ''){
+                                    passengerLocation += postal1.replace(/\s+/g, '')
+                                }
+                            }
+                        }
+                        if(street2 != ''){
+                            passengerDestination += street2.replace(/\s+/g, '') + ','
+                            if(city2 != ''){
+                                passengerDestination += city2.replace(/\s+/g, '')
+                            }
+                            else{
+                                if(postal2 != ''){
+                                    passengerDestination += postal2.replace(/\s+/g, '')
+                                }
+                            }
+                            if(postal2 != ''){
+                                passengerDestination += postal2.replace(/\s+/g, '')
+                            }
+                        }
+                        else{
+                            if(city2 != ''){
+                                passengerDestination += city2.replace(/\s+/g, '')
+                            }
+                            else{
+                                if(postal2 != ''){
+                                    passengerDestination += postal2.replace(/\s+/g, '')
+                                }
+                            }
+                        }
+                        
+                        test.ref('user/').orderByChild('username').on('child_added', function(snapshot){
+                            if(snapshot.val().category == 'Driver' && dateLeave == snapshot.val().DateLeave){
+                                var DriverrLocation = ''
+                                if(snapshot.val().StreetLocation != ''){
+                                    DriverrLocation += snapshot.val().StreetLocation.replace(/\s+/g, '') + ','
+                                    if(snapshot.val().CityLocation != ''){
+                                        DriverrLocation += snapshot.val().CityLocation.replace(/\s+/g, '')
+                                    }
+                                    else{
+                                        if(snapshot.val().PostalLocation != ''){
+                                            DriverrLocation += snapshot.val().PostalLocation.replace(/\s+/g, '')
+                                        }
+                                    }
+                                    if(snapshot.val().PostalLocation != ''){
+                                        DriverrLocation += snapshot.val().PostalLocation.replace(/\s+/g, '')
+                                    }
+                                }
+                                else{
+                                    if(snapshot.val().CityLocation != ''){
+                                        DriverrLocation += snapshot.val().CityLocation.replace(/\s+/g, '')
+                                    }
+                                    else{
+                                        if(snapshot.val().PostalLocation != ''){
+                                            DriverrLocation += snapshot.val().PostalLocation.replace(/\s+/g, '')
+                                        }
+                                    }
+                                }
+
+                                var DriverrDestination = ''
+                                if(snapshot.val().StreetDestination != ''){
+                                    DriverrDestination += snapshot.val().StreetDestination.replace(/\s+/g, '') + ','
+                                    if(snapshot.val().CityDestination != ''){
+                                        DriverrDestination += snapshot.val().CityDestination.replace(/\s+/g, '')
+                                    }
+                                    else{
+                                        if(snapshot.val().PostalDestination != ''){
+                                            DriverrDestination += snapshot.val().PostalDestination.replace(/\s+/g, '')
+                                        }
+                                    }
+                                    if(snapshot.val().PostalDestination != ''){
+                                        DriverrDestination += snapshot.val().PostalDestination.replace(/\s+/g, '')
+                                    }
+                                }
+                                else{
+                                    if(snapshot.val().CityDestination != ''){
+                                        DriverrDestination += snapshot.val().CityDestination.replace(/\s+/g, '')
+                                    }
+                                    else{
+                                        if(snapshot.val().PostalDestination != ''){
+                                            DriverrDestination += snapshot.val().PostalDestination.replace(/\s+/g, '')
+                                        }
+                                    }
+                                }
+                                var contact
+                                if(snapshot.val().phoneNumber == null){
+                                    contact = snapshot.val().phoneNumber
+                                }
+                                else{
+                                    contact = snapshot.val().email
+                                }
+                                findDriver(passengerLocation, DriverrLocation, passengerDestination, DriverrDestination, snapshot.val().username, snapshot.val().DateLeave, contact)
+                            }
+                        })
+                    }
+                    document.getElementById('Application').reset()
+                })
+            })
+
+            var config = {
+                apiKey: "AIzaSyCzQR2j8uA9_KBNC_NXXPynvt1xd1Y9nUc",
+                authDomain: "hackathon-bc11a.firebaseapp.com",
+                databaseURL: "https://hackathon-bc11a.firebaseio.com",
+                storageBucket: "hackathon-bc11a.appspot.com"
+            };
+            firebase.initializeApp(config);
+
+            var test = firebase.database();
+            function writeData(userID, name, email, phoneNumber, dateLeave, street1, city1, postal1, street2, city2, postal2, category){
+                test.ref('user/' + userID).set({
+                    username: name,
+                    email: email,
+                    phoneNumber: phoneNumber,
+                    DateLeave: dateLeave,
+                    StreetLocation: street1,
+                    CityLocation: city1,
+                    PostalLocation: postal1,
+                    StreetDestination: street2,
+                    CityDestination: city2,
+                    PostalDestination: postal2,
+                    category: category
+                });
+            }
+
+
+        </script>
+        <h1 id="title">Ride Sharing Application</h1>
+        <p>Please enter your location and your destination</p>
+        <form id="Application">
+            <div class="">
+                <input type="text" id="Leave" class="box" name="DateLeaving" placeholder ="Date Leaving (MM/DD/YY)"><br>          
+                <input type="text" id="Name" class="box" name="Name" placeholder="Your Name"><br>
+                <input type="text" id="PhoneNumber" class="box" name="PhoneNumber" placeholder="Phone Number"><br>
+                <input type="text" id="Email" class="box" name="Email" placeholder="Email"><br>
+                
+                <p>Location</p>
+                <input type="text" id="LStreet" class="box" name="Street" placeholder="Street Line 1"><br>
+                <input type="text" id="LCityState" class="box" name="CityState" placeholder="City, State"><br>
+                <input type="text" id="LPostal" class="box" name="Postal" placeholder="Postal Code"><br>
+                
+                <p>Destination</p>
+                <input type="text" id="DStreet" class="box" name="Street" placeholder="Street Line 1"><br>
+                <input type="text" id="DCityState" class="box" name="CityState" placeholder="City, State"><br>
+                <input type="text" id="DPostal" class="box" name="Postal" placeholder="Postal Code"><br>
+
+                <input class ="circle1" type="radio" id="radioType1" name="category" value="Driver">Driver
+
+                <input class ="circle2" type="radio" id="radioType2" name="category" value="Passenger">Passenger
+                <input type="hidden" id="categorychecked" name="checked"/>
+            </div>
+        </form>
+        
+        <button type="button" class="btn btn-info btn-lg submit" id="button">Submit</button>
+        <button type="button" class="btn btn-info btn-lg" id="button" data-toggle="modal" data-target="#myModal">Results</button>
+        <div id="Error">Error! Please enter the correct information. </div>
+		<br>
+        <div class="modal fade" id="myModal" role="dialog" >
+            <div class="modal-dialog" style="width:80%;margin-top: 50%;">
+                <div class="modal-content" >
+                    <div class="modal-header" style="size: 28px;">
+					 <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times</button>
+                        <h4 class="modal-title" id="modal-title">Notice</h4>
+                    </div>
+					<div class="modal-body" id="modal-body"> 
+					 <p p class="modal-title" style="text-align:left; margin-bottom: -5%;">There are no results yet.</p>
+					 </div>
+                    <div class="modal-body" id="modal-body"> 
+                        <p class="modal-title" style="text-align:left;" ></p>
+                        <p p class="modal-title" style="text-align:left;"></p>
+                    </div>
+						<button type="button" id="button-close" data-dismiss="modal" style="width: 50px; margin-left: 85%;">Close</button>
+                </div>
+            </div>
+        </div>
+		
+    </body>
+</html>

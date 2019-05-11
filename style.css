@@ -1,0 +1,121 @@
+html {
+	background-image:url(http://ovationtyres.com.au/images/591a718467e74.jpg);
+	background-repeat: repeat;
+	background-size: cover;
+}
+
+body {
+    font-family:calibri;
+    position:fixed;
+    top:60%;
+    left:50%;
+    transform: translate(-50%, -60%);
+}
+#title{
+    color:white;
+}
+h1 {
+    text-align: center;
+    background-color: rgba(50, 50, 50, 0.9);
+    color: white;
+    padding-top: 3%;
+    padding-bottom: 3%;	
+}
+
+p {
+    text-align: center;
+    width: 500px;
+    padding-bottom: -3%;
+}
+
+input {
+    border-radius: 4px;
+    width: 250px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: -30px;
+    margin-top: -5px;
+}
+
+#radioType1{
+    display: inline-block;
+    width:50px;
+    text-align: center;
+    margin-left: 110px;
+}
+#radioType2{
+    display: inline-block;
+    width:50px;
+    text-align: center;
+    margin-left: 50px;
+}
+
+#Error{
+    background-color: red;
+    width: 290px;
+    position: relative;
+    left: 100px;
+    padding: 10px;
+    visibility:hidden;
+}
+
+.box {
+	 border-radius: 4px;
+    width: 250px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: -10px;
+    margin-top: -5px;
+}
+
+#button {
+	text-align: center;
+    background-color: rgba(0, 100, 200, 0.8);
+    color: white;
+    border: none;
+    width: 250px;
+	height: 50px;
+    border-radius: 12px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 25px;
+    margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#button:hover {
+	background-color: rgba(0, 75, 150);
+    color: rbga(150, 150, 150, 0.3);
+    border: none;
+    border-radius: 12px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-open[style] {
+padding-right: 0px !important;
+}
+
+#button-close {
+    background-color: rgba(0, 100, 200, 0.8);
+	text-align:center;
+    color: white;
+    border: none;
+    width: 100px;
+	height: 30px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+	display: block;
+    margin-left: auto;
+    margin-right: -5%;;
+	
+}
